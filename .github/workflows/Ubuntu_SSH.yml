@@ -1,0 +1,44 @@
+name: Ubuntu SSH
+on:
+  workflow_dispatch:
+    inputs:
+      hostname:
+        description: 'Enter hostname'
+        default: 'ubuntu'
+        required: false
+        type: string
+      username:
+        description: 'Enter username'
+        default: 'user'
+        required: false
+        type: string
+      password:
+        description: 'Enter password'
+        default: 'root'
+        required: false
+        type: string
+      ngrok_token:
+        description: 'Enter authtoken'
+        required: false
+        type: string
+      ngrok_region:
+        description: 'Enter region'
+        default: 'us'
+        required: false
+        type: string
+env:
+  hostname: ${{ inputs.hostname }}
+  username: ${{ inputs.username }}
+  password: ${{ inputs.password }}
+  ngrok_token: ${{ inputs.ngrok_token }}
+  ngrok_region: ${{ inputs.ngrok_region }}
+jobs:
+  deploy_SSH_server:
+    name: Deploy an SSH server
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@main
+    - name: Configuring an SSH server...
+      run: bash Ubuntu_SSH.sh
+    - name: Keeping runner active...
+      run: bash Keep_Alive.sh
