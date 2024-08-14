@@ -28,6 +28,13 @@ on:
         required: false
         type: string
 
+env:
+  hostname: ${{ inputs.hostname }}
+  username: ${{ inputs.username }}
+  password: ${{ inputs.password }}
+  ngrok_token: ${{ inputs.ngrok_token }}
+  ngrok_region: ${{ inputs.ngrok_region }}
+
 jobs:
   deploy_SSH_server:
     name: Deploy an SSH server
