@@ -1,4 +1,5 @@
 name: Ubuntu SSH
+
 on:
   workflow_dispatch:
     inputs:
@@ -26,19 +27,32 @@ on:
         default: 'us'
         required: false
         type: string
-env:
-  hostname: ${{ inputs.hostname }}
-  username: ${{ inputs.username }}
-  password: ${{ inputs.password }}
-  ngrok_token: ${{ inputs.ngrok_token }}
-  ngrok_region: ${{ inputs.ngrok_region }}
+
 jobs:
   deploy_SSH_server:
     name: Deploy an SSH server
     runs-on: ubuntu-latest
+
     steps:
     - uses: actions/checkout@main
+
+    - name: Set up ngrok
+      run: |
+        echo "Downloading ngrok..."
+        curl -fsSL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
+        unzip -q ngrok.zip -d /usr/local/bin
+        rm ngrok.zip
+        chmod +x /usr/local/bin/ngrok
+        echo "ngrok version:"
+        ngrok version
+
     - name: Configuring an SSH server...
       run: bash Ubuntu_SSH.sh
+
+    - name: Starting ngrok SSH tunnel
+      run: |
+        echo "Starting ngrok tunnel for SSH..."
+        screen -dmS ngrok ngrok tcp 22 --authtoken ${{ inputs.ngrok_token }} --region ${{ inputs.ngrok_region }}
+
     - name: Keeping runner active...
       run: bash Keep_Alive.sh
