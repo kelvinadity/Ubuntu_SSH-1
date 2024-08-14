@@ -20,7 +20,7 @@ on:
         type: string
       ngrok_token:
         description: 'Enter authtoken'
-        required: false
+        required: true
         type: string
       ngrok_region:
         description: 'Enter region'
@@ -28,38 +28,37 @@ on:
         required: false
         type: string
 
-env:
-  hostname: ${{ inputs.hostname }}
-  username: ${{ inputs.username }}
-  password: ${{ inputs.password }}
-  ngrok_token: ${{ inputs.ngrok_token }}
-  ngrok_region: ${{ inputs.ngrok_region }}
-
 jobs:
   deploy_SSH_server:
     name: Deploy an SSH server
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@main
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-    - name: Set up ngrok
+    - name: Remove old ngrok if exists
+      run: sudo rm -f /usr/local/bin/ngrok
+
+    - name: Download and install ngrok v3.2.0
       run: |
-        echo "Downloading ngrok..."
         curl -fsSL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
         unzip -q ngrok.zip -d /usr/local/bin
         rm ngrok.zip
         chmod +x /usr/local/bin/ngrok
-        echo "ngrok version:"
-        ngrok version
 
-    - name: Configuring an SSH server...
-      run: bash Ubuntu_SSH.sh
+    - name: Verify ngrok installation
+      run: ngrok version
 
-    - name: Starting ngrok SSH tunnel
+    - name: Configure SSH server and ngrok
       run: |
-        echo "Starting ngrok tunnel for SSH..."
-        screen -dmS ngrok ngrok tcp 22 --authtoken ${{ inputs.ngrok_token }} --region ${{ inputs.ngrok_region }}
+        bash ./Ubuntu_SSH.sh
+      env:
+        hostname: ${{ inputs.hostname }}
+        username: ${{ inputs.username }}
+        password: ${{ inputs.password }}
+        ngrok_token: ${{ inputs.ngrok_token }}
+        ngrok_region: ${{ inputs.ngrok_region }}
 
-    - name: Keeping runner active...
+    - name: Keeping runner active
       run: bash Keep_Alive.sh
