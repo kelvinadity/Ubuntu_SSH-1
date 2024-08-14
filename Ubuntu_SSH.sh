@@ -24,18 +24,20 @@ create_host_and_user() {
   fi
 }
 
-# Unduh dan instal utilitas ngrok
+# Unduh dan instal utilitas ngrok versi 3.2.0 dari file ZIP
 install_ngrok_platform() {
   if [[ "$(uname)" =~ Linux ]]; then
       echo "----------------------------------------------------------------";
-      echo "-- Mengunduh & Menginstal Platform Ngrok ...";
+      echo "-- Mengunduh & Menginstal Platform Ngrok Versi 3.2.0 ...";
       echo "----------------------------------------------------------------";
-      curl -fsSL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-v3-stable-linux-amd64.zip -o ngrok.zip;
-      unzip -q ngrok.zip ngrok;
-      rm ngrok.zip;
-      chmod +x ngrok;
-      sudo mv ngrok /usr/local/bin;
-      ngrok -v;
+      local ngrok_url="https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip"
+      local ngrok_zip="ngrok.zip"
+
+      curl -fsSL "$ngrok_url" -o "$ngrok_zip"
+      unzip -q "$ngrok_zip" -d /usr/local/bin
+      rm "$ngrok_zip"
+      chmod +x /usr/local/bin/ngrok
+      ngrok version
       echo "";
   else
       abort "-- Gagal menginstal Paket Ngrok! Sistem tidak didukung.";
