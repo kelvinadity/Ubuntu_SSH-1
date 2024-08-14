@@ -1,4 +1,4 @@
-name: Ubuntu SSH
+name: Setup ngrok and SSH
 
 on:
   workflow_dispatch:
@@ -20,45 +20,35 @@ on:
         type: string
       ngrok_token:
         description: 'Enter authtoken'
-        required: true
+        required: false
         type: string
       ngrok_region:
         description: 'Enter region'
         default: 'us'
         required: false
         type: string
-
+env:
+  hostname: ${{ inputs.hostname }}
+  username: ${{ inputs.username }}
+  password: ${{ inputs.password }}
+  ngrok_token: ${{ inputs.ngrok_token }}
+  ngrok_region: ${{ inputs.ngrok_region }}
 jobs:
   deploy_SSH_server:
     name: Deploy an SSH server
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
+    - uses: actions/checkout@v3
     - name: Remove old ngrok if exists
       run: sudo rm -f /usr/local/bin/ngrok
-
-    - name: Download and install ngrok v3.2.0
+    - name: Download and Install ngrok 3.2.0
       run: |
         curl -fsSL https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
         unzip -q ngrok.zip -d /usr/local/bin
         rm ngrok.zip
         chmod +x /usr/local/bin/ngrok
-
-    - name: Verify ngrok installation
-      run: ngrok version
-
-    - name: Configure SSH server and ngrok
-      run: |
-        bash ./Ubuntu_SSH.sh
-      env:
-        hostname: ${{ inputs.hostname }}
-        username: ${{ inputs.username }}
-        password: ${{ inputs.password }}
-        ngrok_token: ${{ inputs.ngrok_token }}
-        ngrok_region: ${{ inputs.ngrok_region }}
-
-    - name: Keeping runner active
+        /usr/local/bin/ngrok version
+    - name: Configure and Start SSH Server
+      run: bash Ubuntu_SSH.sh
+    - name: Keeping runner active...
       run: bash Keep_Alive.sh
